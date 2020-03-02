@@ -374,8 +374,11 @@ void Barter::syntaxis_checker(const map < tuple < box_id_t, object_id_t>, vector
 		check_duplication(count_mdata,     "mdata",     box_id, object_id);
 		check_duplication(count_idata,     "idata",     box_id, object_id);
 
-		check(!(count_assettype == 0), "Must be added condition with assettype. At box_id: " + to_string(box_id) + " object_id: " + to_string(object_id));
-		check(!(count_author    == 0), "Must be added condition with author. At box_id: "    + to_string(box_id) + " object_id: " + to_string(object_id));
+		// check if conditions is not by SA NFT id
+		if (count_id != 1) {
+			check(!(count_assettype == 0), "Must be added condition with assettype. At box_id: " + to_string(box_id) + " object_id: " + to_string(object_id));
+			check(!(count_author == 0), "Must be added condition with author. At box_id: " + to_string(box_id) + " object_id: " + to_string(object_id));
+		}
 
 		// validate key , operation, value for formating
 		for (auto itr_condition = aconditions.begin(); itr_condition != aconditions.end(); itr_condition++)
@@ -392,6 +395,12 @@ void Barter::syntaxis_checker(const map < tuple < box_id_t, object_id_t>, vector
 		
 		const auto assettype_condition_value = atoi(((string)get<2>(*assettype_condition)).c_str());
 
+		// check if conditions has SA NFT ID
+		if (count_id == 1) {
+			assettype_condition_value = SA_NFT;
+		}
+		
+		
 		// check eosio.token contract asset type
 		if (assettype_condition_value != TOKEN)
 		{
@@ -401,7 +410,7 @@ void Barter::syntaxis_checker(const map < tuple < box_id_t, object_id_t>, vector
 
 		if (assettype_condition_value == SA_NFT)
 		{
-			check(!(count_category != 1), "For assettype = 0 (SA_NFT) must be added category condition. At box_id: " + to_string(box_id) + " object_id: " + to_string(object_id));
+			check(!(count_category != 1) || !(count_id != 1), "For assettype = 0 (SA_NFT) must be added category or id condition. At box_id: " + to_string(box_id) + " object_id: " + to_string(object_id));
 
 			if (id_condition != std::nullopt)
 			{
